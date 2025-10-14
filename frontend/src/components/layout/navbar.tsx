@@ -1,8 +1,7 @@
-// Update frontend/src/components/layout/navbar.tsx
-
+import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Bell, LogOut, Ticket } from "lucide-react";
+import { Bell, LogOut, Menu, X, Ticket } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -12,26 +11,30 @@ export function Navbar() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
       await apiRequest("POST", "/api/auth/logout");
     },
     onSuccess: () => {
+      localStorage.removeItem("jwt_token");
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({
         title: "Logged out",
         description: "You have been logged out successfully.",
       });
+      window.location.href = "/login";
     },
   });
 
   return (
     <nav className="bg-card border-b border-border px-4 py-3 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center space-x-8">
+        {/* Left section */}
+        <div className="flex items-center space-x-3 cursor-pointer">
           <Link href="/">
-            <div className="flex items-center space-x-3 cursor-pointer">
+            <div className="flex items-center space-x-3">
               <img
                 src="https://iili.io/KFIFETg.png"
                 alt="Money Marathon Logo"
@@ -42,31 +45,29 @@ export function Navbar() {
               </span>
             </div>
           </Link>
-          <nav className="hidden md:flex space-x-6">
-            <Link href="/">
-              <a
-                className="text-foreground hover:text-primary transition-colors font-medium"
-                data-testid="nav-dashboard"
-              >
-                Dashboard
-              </a>
-            </Link>
-            <Link href="/booking-codes">
-              <a
-                className="text-foreground hover:text-primary transition-colors font-medium flex items-center space-x-1"
-                data-testid="nav-booking-codes"
-              >
-                <Ticket className="h-4 w-4" />
-                <span>Booking Codes</span>
-              </a>
-            </Link>
-            <span className="text-muted-foreground hover:text-primary transition-colors cursor-not-allowed">
-              Analytics
-            </span>
-          </nav>
         </div>
+
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center space-x-8">
+          <Link href="/">
+            <a className="text-foreground hover:text-primary transition-colors font-medium">
+              Dashboard
+            </a>
+          </Link>
+          <Link href="/booking-codes">
+            <a className="text-foreground hover:text-primary transition-colors font-medium flex items-center space-x-1">
+              <Ticket className="h-4 w-4" />
+              <span>Booking Codes</span>
+            </a>
+          </Link>
+          <span className="text-muted-foreground hover:text-primary transition-colors cursor-not-allowed">
+            Analytics
+          </span>
+        </div>
+
+        {/* Right section */}
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" data-testid="button-notifications">
+          <Button variant="ghost" size="sm">
             <Bell className="h-4 w-4" />
           </Button>
           <div className="flex items-center space-x-3">
@@ -75,10 +76,7 @@ export function Navbar() {
                 {user?.name?.charAt(0)?.toUpperCase() || "U"}
               </span>
             </div>
-            <span
-              className="hidden sm:block text-sm font-medium"
-              data-testid="user-name"
-            >
+            <span className="hidden sm:block text-sm font-medium">
               {user?.name}
             </span>
           </div>
@@ -87,12 +85,49 @@ export function Navbar() {
             size="sm"
             onClick={() => logoutMutation.mutate()}
             disabled={logoutMutation.isPending}
-            data-testid="button-logout"
           >
             <LogOut className="h-4 w-4" />
           </Button>
+
+          {/* Mobile menu toggle */}
+          <button
+            className="md:hidden focus:outline-none"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? (
+              <X className="h-6 w-6 text-foreground" />
+            ) : (
+              <Menu className="h-6 w-6 text-foreground" />
+            )}
+          </button>
         </div>
       </div>
+
+      {/* Mobile dropdown */}
+      {menuOpen && (
+        <div className="md:hidden mt-3 flex flex-col space-y-3 border-t border-border pt-3">
+          <Link href="/">
+            <a
+              className="text-foreground hover:text-primary transition-colors font-medium"
+              onClick={() => setMenuOpen(false)}
+            >
+              Dashboard
+            </a>
+          </Link>
+          <Link href="/booking-codes">
+            <a
+              className="text-foreground hover:text-primary transition-colors font-medium flex items-center space-x-1"
+              onClick={() => setMenuOpen(false)}
+            >
+              <Ticket className="h-4 w-4" />
+              <span>Booking Codes</span>
+            </a>
+          </Link>
+          <span className="text-muted-foreground cursor-not-allowed">
+            Analytics
+          </span>
+        </div>
+      )}
     </nav>
   );
 }
