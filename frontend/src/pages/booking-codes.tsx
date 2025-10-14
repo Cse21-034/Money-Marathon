@@ -12,6 +12,8 @@ export default function BookingCodes() {
   const { user } = useAuth();
   const [showAdminForm, setShowAdminForm] = useState(false);
 
+  const ADMIN_ID = "e719a905-2f07-46a1-b1ec-9cc45cfa89eb";
+
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["/api/booking-codes"],
     queryFn: async () => {
@@ -39,6 +41,8 @@ export default function BookingCodes() {
     );
   }
 
+  const isAdminUser = user?.id === ADMIN_ID;
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
@@ -48,7 +52,7 @@ export default function BookingCodes() {
             <Ticket className="h-7 w-7 text-primary" /> Booking Codes
           </h1>
 
-          {user?.role === "admin" && (
+          {isAdminUser && (
             <Button
               variant="outline"
               onClick={() => setShowAdminForm((prev) => !prev)}
@@ -59,7 +63,7 @@ export default function BookingCodes() {
         </div>
 
         {/* Admin Form */}
-        {user?.role === "admin" && showAdminForm && (
+        {isAdminUser && showAdminForm && (
           <div className="p-6 bg-card rounded-xl shadow-md border">
             <AddBookingCodeForm
               onSuccess={() => {
