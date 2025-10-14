@@ -53,6 +53,26 @@ export interface RestartPlan {
   day: number;
 }
 
+export interface BookingCode {
+  id: string;
+  userId: string;
+  bookingCode: string;
+  odds: string;
+  description?: string;
+  betwayUrl: string;
+  status: "active" | "expired";
+  createdAt: Date;
+  expiresAt?: Date;
+}
+
+export interface InsertBookingCode {
+  bookingCode: string;
+  odds: number;
+  description?: string;
+  betwayUrl: string;
+  expiresAt?: string;
+}
+
 // Validation schemas using zod (for forms)
 import { z } from "zod";
 
@@ -80,4 +100,12 @@ export const updateDayResultSchema = z.object({
 
 export const restartPlanSchema = z.object({
   day: z.number().min(1, "Day must be at least 1"),
+});
+
+export const insertBookingCodeSchema = z.object({
+  bookingCode: z.string().min(5, "Booking code is required"),
+  odds: z.coerce.number().min(1.01, "Odds must be at least 1.01"),
+  description: z.string().optional(),
+  betwayUrl: z.string().url("Must be a valid URL"),
+  expiresAt: z.string().optional(),
 });
