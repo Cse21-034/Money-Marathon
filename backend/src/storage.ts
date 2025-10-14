@@ -20,6 +20,16 @@ export interface IStorage {
   getDayEntriesByPlanId(planId: string): Promise<DayEntry[]>;
   updateDayResult(planId: string, day: number, result: "win" | "loss"): Promise<void>;
   deleteDayEntriesFromDay(planId: string, fromDay: number): Promise<void>;
+
+
+
+  createBookingCode(code: InsertBookingCode & { userId: string }): Promise<BookingCode>;
+  getBookingCodes(limit?: number): Promise<BookingCode[]>;
+  getBookingCodeById(id: string): Promise<BookingCode | undefined>;
+  getBookingCodeByCode(code: string): Promise<BookingCode | undefined>;
+  updateBookingCodeStatus(id: string, status: string): Promise<void>;
+  deleteBookingCode(id: string): Promise<void>;
+  
 }
 
 export class DatabaseStorage implements IStorage {
@@ -112,6 +122,57 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(dayEntries)
       .where(and(eq(dayEntries.planId, planId), sql`day >= ${fromDay}`));
+  }
+  async createBookingCode(code: InsertBookingCode & { userId: string }): Promise<BookingCode> {
+    const [newCode] = await db
+      .insert(bookingCodes)
+      .values({
+        userId: code.userId,
+        bookingCode: code.bookingCode,
+        odds: code.odds.toString(),
+        description: code.description,
+        betwayUrl: code.betwayUrl,
+        expiresAt: code.expiresAt ? new Date(code.expiresAt) : null,
+      })
+      .returning();
+    return newCode;
+  }
+
+  async getBookingCodes(limit: number = 50): Promise<BookingCode[]> {
+    // Get only active codes that haven't expired
+    return await db
+      .select()
+      .from(bookingCodes)
+      .where(
+        and(
+          eq(bookingCodes.status, "active"),
+          // Either no expiry or not expired yet
+          sql`${bookingCodes.expiresAt} IS NULL OR ${bookingCodes.expiresAt} > NOW()`
+        )
+      )
+      .orderBy(desc(bookingCodes.createdAt))
+      .limit(limit);
+  }
+
+  async getBookingCodeById(id: string): Promise<BookingCode | undefined> {
+    const [code] = await db.select().from(bookingCodes).where(eq(bookingCodes.id, id));
+    return code || undefined;
+  }
+
+  async getBookingCodeByCode(code: string): Promise<BookingCode | undefined> {
+    const [bookingCode] = await db
+      .select()
+      .from(bookingCodes)
+      .where(eq(bookingCodes.bookingCode, code));
+    return bookingCode || undefined;
+  }
+
+  async updateBookingCodeStatus(id: string, status: string): Promise<void> {
+    await db.update(bookingCodes).set({ status }).where(eq(bookingCodes.id, id));
+  }
+
+  async deleteBookingCode(id: string): Promise<void> {
+    await db.delete(bookingCodes).where(eq(bookingCodes.id, id));
   }
 }
 
