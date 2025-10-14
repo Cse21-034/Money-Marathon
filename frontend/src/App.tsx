@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Navbar } from "@/components/layout/navbar";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import BookingCodes from "@/pages/booking-codes";
 
 function ErrorBoundary({ children }: { children: React.ReactNode }) {
   const [hasError, setHasError] = useState(false);
@@ -49,6 +50,7 @@ function AuthenticatedApp() {
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/plans/:id" component={PlanDetails} />
+        <Route path="/booking-codes" component={BookingCodes} />  {/* NEW ROUTE */}
         <Route component={NotFound} />
       </Switch>
     </div>
