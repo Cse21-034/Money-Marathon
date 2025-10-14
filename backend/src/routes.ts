@@ -7,7 +7,7 @@ import { z } from "zod";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import { storage } from "./storage";
-import { insertUserSchema, loginSchema, insertPlanSchema, updateDayResultSchema, restartPlanSchema } from "./schema";
+import { insertUserSchema, loginSchema, insertPlanSchema, updateDayResultSchema, restartPlanSchema, insertBookingCodeSchema } from "./schema";
 import { generatePlanEntries, recalculatePlanFromDay } from "./lib/calculations";
 
 // Configure Passport
@@ -286,6 +286,130 @@ app.get("/api/plans", requireAuth, async (req, res) => {
       res.status(500).json({ message: "Failed to restart plan" });
     }
   });
+// POST /api/booking-codes - Create new booking code (Admin only)
+app.post("/api/booking-codes", requireAuth, async (req, res) => {
+  try {
+    const user = req.user as any;
+    
+    // Optional: Add admin check here
+    // if (!user.isAdmin) {
+    //   return res.status(403).json({ message: "Admin access required" });
+    // }
+
+    const codeData = insertBookingCodeSchema.parse(req.body);
+    const bookingCode = await storage.createBookingCode({ 
+      ...codeData, 
+      userId: user.id 
+    });
+    
+    res.status(201).json({ bookingCode });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: error.errors[0].message });
+    }
+    console.error("Create booking code error:", error);
+    res.status(500).json({ message: "Failed to create booking code" });
+  }
+});
+
+// GET /api/booking-codes - Get all active booking codes (Public)
+app.get("/api/booking-codes", async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 50;
+    const codes = await storage.getBookingCodes(limit);
+    res.json({ bookingCodes: codes });
+  } catch (error) {
+    console.error("Get booking codes error:", error);
+    res.status(500).json({ message: "Failed to fetch booking codes" });
+  }
+});
+
+// GET /api/booking-codes/:id - Get specific booking code
+app.get("/api/booking-codes/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const code = await storage.getBookingCodeById(id);
+    
+    if (!code) {
+      return res.status(404).json({ message: "Booking code not found" });
+    }
+    
+    res.json({ bookingCode: code });
+  } catch (error) {
+    console.error("Get booking code error:", error);
+    res.status(500).json({ message: "Failed to fetch booking code" });
+  }
+});
+
+// GET /api/booking-codes/code/:code - Get booking code by code string
+app.get("/api/booking-codes/code/:code", async (req, res) => {
+  try {
+    const { code } = req.params;
+    const bookingCode = await storage.getBookingCodeByCode(code);
+    
+    if (!bookingCode) {
+      return res.status(404).json({ message: "Booking code not found" });
+    }
+    
+    res.json({ bookingCode });
+  } catch (error) {
+    console.error("Get booking code by code error:", error);
+    res.status(500).json({ message: "Failed to fetch booking code" });
+  }
+});
+
+// DELETE /api/booking-codes/:id - Delete booking code (Admin only)
+app.delete("/api/booking-codes/:id", requireAuth, async (req, res) => {
+  try {
+    const user = req.user as any;
+    const { id } = req.params;
+    
+    const code = await storage.getBookingCodeById(id);
+    if (!code) {
+      return res.status(404).json({ message: "Booking code not found" });
+    }
+    
+    // Check if user owns this code or is admin
+    if (code.userId !== user.id) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+    
+    await storage.deleteBookingCode(id);
+    res.json({ message: "Booking code deleted successfully" });
+  } catch (error) {
+    console.error("Delete booking code error:", error);
+    res.status(500).json({ message: "Failed to delete booking code" });
+  }
+});
+
+// PATCH /api/booking-codes/:id/status - Update booking code status
+app.patch("/api/booking-codes/:id/status", requireAuth, async (req, res) => {
+  try {
+    const user = req.user as any;
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    if (!["active", "expired"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+    
+    const code = await storage.getBookingCodeById(id);
+    if (!code) {
+      return res.status(404).json({ message: "Booking code not found" });
+    }
+    
+    if (code.userId !== user.id) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+    
+    await storage.updateBookingCodeStatus(id, status);
+    res.json({ message: "Status updated successfully" });
+  } catch (error) {
+    console.error("Update booking code status error:", error);
+    res.status(500).json({ message: "Failed to update status" });
+  }
+});
+  
 
   const httpServer = createServer(app);
   return httpServer;
