@@ -1,6 +1,8 @@
+// Update frontend/src/components/layout/navbar.tsx
+
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Bell, LogOut } from "lucide-react";
+import { Bell, LogOut, Ticket } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -30,7 +32,6 @@ export function Navbar() {
         <div className="flex items-center space-x-8">
           <Link href="/">
             <div className="flex items-center space-x-3 cursor-pointer">
-              {/* Responsive Logo */}
               <img
                 src="https://iili.io/KFIFETg.png"
                 alt="Money Marathon Logo"
@@ -48,6 +49,15 @@ export function Navbar() {
                 data-testid="nav-dashboard"
               >
                 Dashboard
+              </a>
+            </Link>
+            <Link href="/booking-codes">
+              <a
+                className="text-foreground hover:text-primary transition-colors font-medium flex items-center space-x-1"
+                data-testid="nav-booking-codes"
+              >
+                <Ticket className="h-4 w-4" />
+                <span>Booking Codes</span>
               </a>
             </Link>
             <span className="text-muted-foreground hover:text-primary transition-colors cursor-not-allowed">
