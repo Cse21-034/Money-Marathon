@@ -88,6 +88,52 @@ export const restartPlanSchema = z.object({
   day: z.number().min(1, "Day must be at least 1"),
 });
 
+
+// Add to backend/src/schema.ts
+
+import { sql, relations } from "drizzle-orm";
+import { pgTable, text, varchar, decimal, integer, timestamp, pgEnum, json } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+
+// ... existing code ...
+
+// New table for booking codes
+export const bookingCodes = pgTable("booking_codes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  bookingCode: text("booking_code").notNull().unique(),
+  odds: decimal("odds", { precision: 4, scale: 2 }).notNull(),
+  description: text("description"),
+  betwayUrl: text("betway_url").notNull(),
+  status: text("status").default("active").notNull(), // active, expired
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at"),
+});
+
+export const bookingCodesRelations = relations(bookingCodes, ({ one }) => ({
+  user: one(users, { fields: [bookingCodes.userId], references: [users.id] }),
+}));
+
+// Validation schema for booking codes
+export const insertBookingCodeSchema = createInsertSchema(bookingCodes).omit({
+  id: true,
+  userId: true,
+  createdAt: true,
+}).extend({
+  bookingCode: z.string().min(5, "Booking code is required"),
+  odds: z.coerce.number().min(1.01, "Odds must be at least 1.01"),
+  description: z.string().optional(),
+  betwayUrl: z.string().url("Must be a valid URL"),
+  expiresAt: z.string().datetime().optional(),
+});
+
+export type BookingCode = typeof bookingCodes.$inferSelect;
+export type InsertBookingCode = z.infer<typeof insertBookingCodeSchema>;
+
+
+
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type LoginUser = z.infer<typeof loginSchema>;
