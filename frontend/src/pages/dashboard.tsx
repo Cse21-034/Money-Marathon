@@ -1,9 +1,10 @@
-// frontend/src/pages/dashboard.tsx - FIXED VERSION
+// frontend/src/pages/dashboard.tsx - WITH ANALYTICS
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { PlanCard } from "@/components/dashboard/plan-card";
 import { CreatePlanForm } from "@/components/dashboard/create-plan-form";
+import { AnalyticsCharts } from "@/components/analytics/analytics-charts";
 import { usePlans } from "@/hooks/use-plans";
-import { Plus, Sparkles, TrendingUp, Zap, ChevronRight, Bell, Gift } from "lucide-react";
+import { Plus, Sparkles, TrendingUp, Zap, ChevronRight, Bell, Gift, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -195,7 +196,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
-      {/* Header with Greeting - NO STICKY */}
+      {/* Header with Greeting */}
       <div className="bg-background/80 backdrop-blur-lg border-b border-border px-4 py-4">
         <div className="flex items-center justify-between">
           <div>
@@ -271,23 +272,25 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Affiliate Banner */}
-        <div className="bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl p-6 border border-border/50">
-          <div className="flex items-center space-x-4">
-            <img
-              src="https://iili.io/KFIn5Ga.png"
-              alt="Partner"
-              className="w-16 h-16 rounded-xl object-cover"
-            />
-            <div className="flex-1">
-              <h4 className="font-bold text-foreground mb-1">Join Our Partners</h4>
-              <p className="text-xs text-muted-foreground">Exclusive betting opportunities</p>
+        {/* Analytics Charts Section - NEW */}
+        {plansArray.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-foreground flex items-center space-x-2">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                <span>Performance Analytics</span>
+              </h2>
+              <button className="text-sm text-primary font-medium flex items-center space-x-1">
+                <span>View Full Analytics</span>
+                <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
-            <Button size="sm" variant="outline">
-              Learn More
-            </Button>
+            <AnalyticsCharts plans={plansArray} />
           </div>
-        </div>
+        )}
+
+        {/* Rotating Affiliate Banners */}
+        <AffiliateBanners />
       </div>
 
       {/* Create Plan Modal/Sheet */}
@@ -313,7 +316,7 @@ export default function Dashboard() {
       {/* Floating Action Button */}
       <FloatingActionButton onClick={() => setShowCreateForm(true)} />
 
-      {/* Bottom Ad Banner - FIXED SPACING */}
+      {/* Bottom Ad Banner */}
       <div className="fixed bottom-16 left-0 right-0 bg-card border-t border-border p-3 z-30">
         <a
           href="https://track.deriv.com/_-1DpJjc-4Uj1k0YPxVS0A2Nd7ZgqdRLk/1/"
