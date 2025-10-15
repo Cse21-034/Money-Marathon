@@ -482,7 +482,7 @@ export default function Dashboard() {
       {/* Floating Action Button */}
       <FloatingActionButton onClick={() => setShowCreateForm(true)} />
 
-      {/* Bottom Ad Banner */}
+      {/* Bottom Ad Banner 
       <div className="fixed bottom-16 left-0 right-0 bg-card border-t border-border p-3 z-30">
         <a
           href="https://track.deriv.com/_-1DpJjc-4Uj1k0YPxVS0A2Nd7ZgqdRLk/1/"
@@ -496,7 +496,7 @@ export default function Dashboard() {
             className="w-full h-16 object-contain rounded-lg"
           />
         </a>
-      </div>
+      </div>*/}
     </div>
   );
 }
