@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Link2, TrendingUp, FileText } from "lucide-react";
+import { Loader2, Plus, Link2, TrendingUp, FileText, Calendar } from "lucide-react";
 import { useState } from "react";
 
 interface AddBookingCodeFormProps {
@@ -83,6 +83,7 @@ export function AddBookingCodeForm({ onSuccess }: AddBookingCodeFormProps) {
           betwayUrl,
           odds: 2.0, // Default odds
           description: "",
+          expiresAt: "",
         });
         setIsExpanded(true);
         toast({
@@ -203,6 +204,26 @@ export function AddBookingCodeForm({ onSuccess }: AddBookingCodeFormProps) {
           {errors.odds && (
             <p className="text-sm text-destructive">{errors.odds.message}</p>
           )}
+        </div>
+
+        {/* Expiry Date - NEW FIELD */}
+        <div className="space-y-2">
+          <Label htmlFor="expiresAt" className="flex items-center space-x-2">
+            <Calendar className="h-4 w-4" />
+            <span>Expiry Date (Optional)</span>
+          </Label>
+          <Input
+            id="expiresAt"
+            type="datetime-local"
+            {...register("expiresAt")}
+            className="cursor-pointer"
+          />
+          {errors.expiresAt && (
+            <p className="text-sm text-destructive">{errors.expiresAt.message}</p>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Leave empty for no expiration. Code will be hidden after this date.
+          </p>
         </div>
 
         {/* Description */}
