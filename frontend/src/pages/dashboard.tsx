@@ -91,6 +91,172 @@ function FeaturedBanner() {
   );
 }
 
+// 💼 Rotating Affiliate Banners
+function AffiliateBanners() {
+  const [currentBanner, setCurrentBanner] = useState(0);
+
+  const affiliates = [
+    {
+      name: "Deriv",
+      logo: "https://iili.io/KFIn5Ga.png",
+      gradient: "from-red-500/20 via-orange-500/10 to-yellow-500/5",
+      borderColor: "border-red-500/30",
+      title: "Trade Smarter with Deriv",
+      subtitle: "Get $10,000 virtual funds to practice",
+      cta: "Start Trading",
+      link: "https://track.deriv.com/_-1DpJjc-4Uj1k0YPxVS0A2Nd7ZgqdRLk/1/",
+      bgImage: "https://iili.io/KFRQEIR.jpg"
+    },
+    {
+      name: "Betway",
+      logo: "https://iili.io/KFIn5Ga.png",
+      gradient: "from-green-500/20 via-emerald-500/10 to-teal-500/5",
+      borderColor: "border-green-500/30",
+      title: "Bet Big, Win Bigger",
+      subtitle: "100% Welcome Bonus up to R1000",
+      cta: "Claim Bonus",
+      link: "#",
+      bgImage: null
+    },
+    {
+      name: "1xBet",
+      logo: "https://iili.io/KFIn5Ga.png",
+      gradient: "from-blue-500/20 via-indigo-500/10 to-purple-500/5",
+      borderColor: "border-blue-500/30",
+      title: "Premium Sports Betting",
+      subtitle: "Live betting on 1000+ events daily",
+      cta: "Join Now",
+      link: "#",
+      bgImage: null
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % affiliates.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const currentAffiliate = affiliates[currentBanner];
+
+  return (
+    <div className="relative">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
+          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+          <span>Featured Partners</span>
+        </h3>
+        <div className="flex space-x-1.5">
+          {affiliates.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentBanner(index)}
+              className={`h-1.5 rounded-full transition-all ${
+                index === currentBanner 
+                  ? "w-6 bg-primary" 
+                  : "w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+              }`}
+              aria-label={`View partner ${index + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="relative overflow-hidden rounded-2xl">
+        {affiliates.map((affiliate, index) => (
+          <a
+            key={index}
+            href={affiliate.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`block transition-all duration-700 ${
+              index === currentBanner 
+                ? "opacity-100 relative" 
+                : "opacity-0 absolute inset-0 pointer-events-none"
+            }`}
+          >
+            {affiliate.bgImage ? (
+              // Banner with background image
+              <div className="relative h-32 sm:h-40 overflow-hidden group">
+                <img
+                  src={affiliate.bgImage}
+                  alt={affiliate.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent">
+                  <div className="h-full flex items-center justify-between p-4 sm:p-6">
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <img
+                          src={affiliate.logo}
+                          alt={affiliate.name}
+                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover shadow-lg"
+                        />
+                        <div>
+                          <h4 className="text-white font-bold text-base sm:text-lg">
+                            {affiliate.title}
+                          </h4>
+                          <p className="text-white/90 text-xs sm:text-sm">
+                            {affiliate.subtitle}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      className="bg-white text-black hover:bg-white/90 font-semibold shadow-lg hidden sm:flex"
+                    >
+                      {affiliate.cta}
+                    </Button>
+                  </div>
+                </div>
+                {/* Mobile CTA */}
+                <div className="absolute bottom-3 right-3 sm:hidden">
+                  <Button size="sm" className="bg-white text-black hover:bg-white/90 font-semibold shadow-lg text-xs">
+                    {affiliate.cta}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              // Banner with gradient background
+              <div className={`bg-gradient-to-br ${affiliate.gradient} border-2 ${affiliate.borderColor} rounded-2xl p-4 sm:p-6 hover:shadow-xl transition-all duration-300 group`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-white/20 rounded-xl blur-md"></div>
+                      <img
+                        src={affiliate.logo}
+                        alt={affiliate.name}
+                        className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-xl object-cover shadow-lg border-2 border-white/20"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-foreground text-sm sm:text-base mb-1 truncate">
+                        {affiliate.title}
+                      </h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                        {affiliate.subtitle}
+                      </p>
+                    </div>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="ml-3 bg-background/50 backdrop-blur-sm hover:bg-background/70 border-2 font-semibold group-hover:scale-105 transition-transform text-xs sm:text-sm"
+                  >
+                    {affiliate.cta}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // 🎨 Quick Actions Grid
 function QuickActions({ onCreatePlan }: { onCreatePlan: () => void }) {
   const actions = [
@@ -272,7 +438,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Analytics Charts Section - NEW */}
+        {/* Analytics Charts Section */}
         {plansArray.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
