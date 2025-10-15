@@ -1,4 +1,4 @@
-// frontend/src/pages/dashboard.tsx - COMPLETELY REDESIGNED
+// frontend/src/pages/dashboard.tsx - FIXED VERSION
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { PlanCard } from "@/components/dashboard/plan-card";
 import { CreatePlanForm } from "@/components/dashboard/create-plan-form";
@@ -166,7 +166,7 @@ function FloatingActionButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-20 right-4 z-40 w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
+      className="fixed bottom-24 right-4 z-40 w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
     >
       <Plus className="h-6 w-6 text-white" />
     </button>
@@ -194,10 +194,10 @@ export default function Dashboard() {
   const activePlans = plansArray.filter((plan: any) => plan.status === "active");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background pb-24">
-      {/* Header with Greeting */}
-      <div className="sticky top-16 z-30 bg-background/80 backdrop-blur-lg border-b border-border px-4 py-4">
-        <div className="flex items-center justify-between mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
+      {/* Header with Greeting - NO STICKY */}
+      <div className="bg-background/80 backdrop-blur-lg border-b border-border px-4 py-4">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">
               Hello, {user?.name?.split(" ")[0] || "Champion"} 👋
@@ -215,7 +215,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 pb-32 space-y-6">
         {/* Featured Banner */}
         <FeaturedBanner />
 
@@ -313,8 +313,8 @@ export default function Dashboard() {
       {/* Floating Action Button */}
       <FloatingActionButton onClick={() => setShowCreateForm(true)} />
 
-      {/* Bottom Ad Banner */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-3 z-40">
+      {/* Bottom Ad Banner - FIXED SPACING */}
+      <div className="fixed bottom-16 left-0 right-0 bg-card border-t border-border p-3 z-30">
         <a
           href="https://track.deriv.com/_-1DpJjc-4Uj1k0YPxVS0A2Nd7ZgqdRLk/1/"
           target="_blank"
